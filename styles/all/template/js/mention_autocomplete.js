@@ -66,7 +66,12 @@
 		function fetchSuggestions(query) {
 			if (!window.phpbb_mention_url) return;
 			
-			fetch(window.phpbb_mention_url + '?q=' + encodeURIComponent(query))
+			fetch(window.phpbb_mention_url + '?q=' + encodeURIComponent(query), {
+				credentials: 'same-origin',
+				headers: {
+					'X-Requested-With': 'XMLHttpRequest'
+				}
+			})
 				.then(response => response.json())
 				.then(data => {
 					suggestions = data;
