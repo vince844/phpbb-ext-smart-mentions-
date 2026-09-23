@@ -50,6 +50,19 @@ class mention extends \phpbb\notification\type\post
 	}
 
 	/**
+	 * Set default notification methods (board + email).
+	 *
+	 * @return array
+	 */
+	public function get_default_methods()
+	{
+		return [
+			'notification.method.board',
+			'notification.method.email',
+		];
+	}
+
+	/**
 	 * Find the users who want to receive notifications.
 	 *
 	 * This uses the pre-filtered list of user IDs passed in $post['users_to_notify']
@@ -96,9 +109,18 @@ class mention extends \phpbb\notification\type\post
 	 */
 	public function get_email_template()
 	{
-		return '@kondomanager_mention/user_mention';
+		return false;
 	}
 
+	/**
+	 * Get email template variables
+	 *
+	 * @return array
+	 */
+	public function get_email_template_variables()
+	{
+		return [];
+	}
 
 	/**
 	 * {@inheritdoc}

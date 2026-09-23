@@ -58,10 +58,24 @@ class main_listener implements EventSubscriberInterface
 	static public function getSubscribedEvents()
 	{
 		return [
+			'core.user_setup'                         => 'user_setup',
 			'core.page_header'                        => 'page_header',
 			'core.text_formatter_s9e_configure_after' => 'configure_s9e_after',
 			'core.submit_post_end'                    => 'submit_post_end',
 		];
+	}
+
+	/**
+	 * Load language files globally (including UCP).
+	 */
+	public function user_setup($event)
+	{
+		$lang_set_ext = $event['lang_set_ext'];
+		$lang_set_ext[] = [
+			'ext_name' => 'kondomanager/mention',
+			'lang_set' => 'notification',
+		];
+		$event['lang_set_ext'] = $lang_set_ext;
 	}
 
 	/**
@@ -182,7 +196,7 @@ class main_listener implements EventSubscriberInterface
 			'post_id'         => (int) $data['post_id'],
 			'topic_id'        => (int) $data['topic_id'],
 			'forum_id'        => (int) $data['forum_id'],
-			'post_subject'    => isset($data['post_subject']) ? $data['post_subject'] : '',
+			'post_subject'    => $data['post_subject'],
 			'poster_id'       => (int) $data['poster_id'],
 			'topic_title'     => isset($data['topic_title']) ? $data['topic_title'] : '',
 			'post_username'   => '',
