@@ -96,18 +96,9 @@ class mention extends \phpbb\notification\type\post
 	 */
 	public function get_email_template()
 	{
-		return false;
+		return '@kondomanager_mention/user_mention';
 	}
 
-	/**
-	 * Get email template variables
-	 *
-	 * @return array
-	 */
-	public function get_email_template_variables()
-	{
-		return [];
-	}
 
 	/**
 	 * {@inheritdoc}

@@ -1,0 +1,13 @@
+Subject: You have been mentioned in a topic
+
+Hello {USERNAME},
+
+You have received this email because {AUTHOR_NAME} mentioned you in the topic "{TOPIC_TITLE}" at "{SITENAME}".
+
+You can view the post containing the mention by clicking on the following link:
+
+{U_VIEW_POST}
+
+If you no longer wish to receive emails when you are mentioned, you can update your notification settings in your User Control Panel.
+
+{EMAIL_SIG}

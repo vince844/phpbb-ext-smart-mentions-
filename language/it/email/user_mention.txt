@@ -1,0 +1,13 @@
+Subject: Sei stato menzionato in una discussione
+
+Ciao {USERNAME},
+
+Ricevi questa email perché {AUTHOR_NAME} ti ha menzionato nella discussione "{TOPIC_TITLE}" su "{SITENAME}".
+
+Puoi visualizzare il messaggio in cui sei stato menzionato cliccando sul seguente link:
+
+{U_VIEW_POST}
+
+Se non desideri più ricevere email quando vieni menzionato, puoi disattivare l'opzione modificando le tue preferenze di notifica nel Pannello di Controllo Utente.
+
+{EMAIL_SIG}
