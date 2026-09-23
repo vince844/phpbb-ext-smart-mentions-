@@ -85,12 +85,47 @@
 				.catch(err => hideDropdown());
 		}
 
+
+		// Helper function to get caret coordinates
+		function getCaretCoordinates(element, position) {
+			var div = document.createElement('div');
+			var style = div.style;
+			var computed = window.getComputedStyle(element);
+			
+			style.whiteSpace = 'pre-wrap';
+			style.wordWrap = 'break-word';
+			style.position = 'absolute';
+			style.visibility = 'hidden';
+			
+			var properties = ['direction', 'boxSizing', 'width', 'height', 'overflowX', 'overflowY', 'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth', 'borderStyle', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft', 'fontStyle', 'fontVariant', 'fontWeight', 'fontStretch', 'fontSize', 'fontSizeAdjust', 'lineHeight', 'fontFamily', 'textAlign', 'textTransform', 'textIndent', 'textDecoration', 'letterSpacing', 'wordSpacing', 'tabSize', 'MozTabSize'];
+			properties.forEach(function (prop) {
+				style[prop] = computed[prop];
+			});
+			
+			div.textContent = element.value.substring(0, position);
+			
+			var span = document.createElement('span');
+			span.textContent = element.value.substring(position) || '.';
+			div.appendChild(span);
+			
+			document.body.appendChild(div);
+			var coordinates = {
+				top: span.offsetTop + parseInt(computed.borderTopWidth),
+				left: span.offsetLeft + parseInt(computed.borderLeftWidth)
+			};
+			document.body.removeChild(div);
+			
+			return coordinates;
+		}
 		function showDropdown() {
 			var rect = textarea.getBoundingClientRect();
-			wrapper.style.left = rect.left + window.scrollX + 'px';
-			// We approximate the top position to the top of the textarea + some offset
-			wrapper.style.top = rect.top + window.scrollY + 25 + 'px';
-			wrapper.style.left = rect.left + window.scrollX + 5 + 'px';
+			var caretCoords = getCaretCoordinates(textarea, textarea.selectionStart);
+			
+			var topOffset = rect.top + window.scrollY + caretCoords.top + 20 - textarea.scrollTop;
+			var leftOffset = rect.left + window.scrollX + caretCoords.left;
+			
+			wrapper.style.top = topOffset + 'px';
+			wrapper.style.left = leftOffset + 'px';
 			wrapper.classList.add('active');
 			renderDropdown();
 		}
