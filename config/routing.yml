@@ -1,0 +1,3 @@
+kondomanager_mention_autocomplete:
+    path: /mention/autocomplete
+    defaults: { _controller: kondomanager.mention.controller.autocomplete:handle }

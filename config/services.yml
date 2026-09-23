@@ -1,0 +1,26 @@
+services:
+    kondomanager.mention.listener:
+        class: kondomanager\mention\event\main_listener
+        arguments:
+            - '@dbal.conn'
+            - '@notification_manager'
+            - '@auth'
+            - '@template'
+            - '@controller.helper'
+            - '@language'
+        tags:
+            - { name: event.listener }
+
+    kondomanager.mention.notification.type.mention:
+        class: kondomanager\mention\notification\type\mention
+        shared: false
+        parent: notification.type.post
+        tags:
+            - { name: notification.type }
+
+    kondomanager.mention.controller.autocomplete:
+        class: kondomanager\mention\controller\autocomplete
+        arguments:
+            - '@dbal.conn'
+            - '@request'
+            - '@user'
