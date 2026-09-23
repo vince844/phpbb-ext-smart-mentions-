@@ -182,7 +182,7 @@ class main_listener implements EventSubscriberInterface
 			'post_id'         => (int) $data['post_id'],
 			'topic_id'        => (int) $data['topic_id'],
 			'forum_id'        => (int) $data['forum_id'],
-			'post_subject'    => $data['post_subject'],
+			'post_subject'    => isset($data['post_subject']) ? $data['post_subject'] : '',
 			'poster_id'       => (int) $data['poster_id'],
 			'topic_title'     => isset($data['topic_title']) ? $data['topic_title'] : '',
 			'post_username'   => '',
