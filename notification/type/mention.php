@@ -109,7 +109,7 @@ class mention extends \phpbb\notification\type\post
 	 */
 	public function get_email_template()
 	{
-		return false;
+		return '@kondomanager_mention/user_mention';
 	}
 
 	/**
@@ -119,7 +119,12 @@ class mention extends \phpbb\notification\type\post
 	 */
 	public function get_email_template_variables()
 	{
-		return [];
+		$user_data = $this->user_loader->get_user($this->get_data('poster_id'));
+
+		return array_merge(parent::get_email_template_variables(), array(
+			'AUTHOR_NAME'		=> html_entity_decode($user_data['username'], ENT_COMPAT),
+			'POST_SUBJECT'		=> html_entity_decode($this->get_data('post_subject'), ENT_COMPAT),
+		));
 	}
 
 	/**
