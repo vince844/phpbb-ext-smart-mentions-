@@ -119,7 +119,7 @@
 		}
 		function showDropdown() {
 			var rect = textarea.getBoundingClientRect();
-			var caretCoords = getCaretCoordinates(textarea, textarea.selectionStart);
+			var caretCoords = getCaretCoordinates(textarea, mentionStartIndex);
 			
 			var topOffset = rect.top + window.scrollY + caretCoords.top + 20 - textarea.scrollTop;
 			var leftOffset = rect.left + window.scrollX + caretCoords.left;
