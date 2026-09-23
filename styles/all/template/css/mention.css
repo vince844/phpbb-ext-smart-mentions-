@@ -43,7 +43,7 @@ a.mention:hover {
 	content: '';
 	position: absolute;
 	top: -8px;
-	left: 24px;
+	left: 10px;
 	border-width: 0 8px 8px 8px;
 	border-style: solid;
 	border-color: transparent transparent rgba(200, 204, 209, 0.5) transparent;
@@ -55,7 +55,7 @@ a.mention:hover {
 	content: '';
 	position: absolute;
 	top: -7px;
-	left: 25px;
+	left: 11px;
 	border-width: 0 7px 7px 7px;
 	border-style: solid;
 	border-color: transparent transparent rgba(255, 255, 255, 0.98) transparent;
