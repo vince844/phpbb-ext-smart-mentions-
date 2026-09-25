@@ -11,6 +11,16 @@ Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/)
 
 ---
 
+## [1.0.0-b2] - 2026-09-25
+
+### Risolto (Fixed)
+- **Placeholder errato stringa di notifica (`NOTIFICATION_MENTION`, Task SM-02)**:
+  - Rimosso il placeholder `%2$s` dalle stringhe in `language/it/notification.php` e `language/en/notification.php`.
+  - In phpBB `\phpbb\notification\type\post::get_title()` il secondo parametro passato è `$responders_cnt` (il conteggio numerico, tipicamente `1`), non il titolo della discussione (che viene già renderizzato separatamente da `get_reference()`).
+  - Corretta la frase in *"Sei stato menzionato da %1$s in:"* (IT) e *"You were mentioned by %1$s in:"* (EN), eliminando la dicitura anomala *"menzionato in: 1"*.
+
+---
+
 ## [1.0.0-b1] - 2026-09-25
 
 ### Risolto (Fixed)

@@ -20,5 +20,5 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, [
 	'NOTIFICATION_TYPE_MENTION' => 'Qualcuno ti ha menzionato in un post',
-	'NOTIFICATION_MENTION'      => 'Sei stato menzionato da <strong>%1$s</strong> in: <strong>%2$s</strong>',
+	'NOTIFICATION_MENTION'      => 'Sei stato menzionato da <strong>%1$s</strong> in:',
 ]);
