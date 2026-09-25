@@ -8,7 +8,7 @@ Questo documento traccia i bug noti, le migliorie pianificate e i casi limite de
 
 | ID | Priorità | Modulo | Descrizione sintetica | Stato |
 |:---|:---|:---|:---|:---|
-| **SM-01** | 🔴 Alta | JS / Autocomplete | Autocomplete rimuove il carattere `@` alla selezione dal dropdown | `DA FARE` |
+| **SM-01** | 🔴 Alta | JS / Autocomplete | Autocomplete rimuove il carattere `@` alla selezione dal dropdown | `COMPLETATO` (v1.0.0-b4) |
 | **SM-02** | 🔴 Alta | Lingua | Stringa di notifica errata: `%2$s` stampa conteggio anziché titolo ("menzionato in: 1") | `COMPLETATO` (v1.0.0-b2) |
 | **SM-03** | 🟡 Media | JS / Template | Supporto Quick Reply (Risposta Rapida in basso nei topic) | `COMPLETATO` (v1.0.0-b3) |
 | **SM-04** | 🟡 Media | PHP / Regex | Supporto caratteri Unicode e lettere accentate negli username (`Nicolò`, `René`) | `DA FARE` |

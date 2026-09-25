@@ -11,6 +11,13 @@ Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/)
 
 ---
 
+## [1.0.0-b4] - 2026-09-25
+
+### Risolto (Fixed)
+- **Autocomplete mantiene il carattere `@` alla selezione (Task SM-01)**:
+  - Riscritto il calcolo degli indici di inserimento (`mentionAtIndex` e `mentionEndIndex`) in `mention_autocomplete.js`.
+  - La funzione `insertMention` ora ricostruisce esplicitamente il token menzione con prefisso `@` (es. `@username` o `@"Nome Cognome"` in caso di spazi), garantendo che la chiocciola non vada mai persa alla selezione con mouse o tastiera (Invio/Tab) e che il motore s9e di phpBB riconosca sempre la menzione come link interattivo inviando la relativa notifica.
+
 ## [1.0.0-b3] - 2026-09-25
 
 ### Aggiunto (Added)
