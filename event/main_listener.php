@@ -192,14 +192,18 @@ class main_listener implements EventSubscriberInterface
 			}
 		}
 
+		$post_subject = !empty($event['subject']) ? $event['subject'] : (isset($data['post_subject']) ? $data['post_subject'] : (isset($data['topic_title']) ? $data['topic_title'] : ''));
+		$topic_title = !empty($data['topic_title']) ? $data['topic_title'] : $post_subject;
+		$post_username = !empty($event['username']) ? $event['username'] : (isset($data['post_username']) ? $data['post_username'] : '');
+
 		$notification_data = [
 			'post_id'         => (int) $data['post_id'],
 			'topic_id'        => (int) $data['topic_id'],
 			'forum_id'        => (int) $data['forum_id'],
-			'post_subject'    => $data['post_subject'],
+			'post_subject'    => $post_subject,
 			'poster_id'       => (int) $data['poster_id'],
-			'topic_title'     => isset($data['topic_title']) ? $data['topic_title'] : '',
-			'post_username'   => '',
+			'topic_title'     => $topic_title,
+			'post_username'   => $post_username,
 			'forum_name'      => isset($data['forum_name']) ? $data['forum_name'] : '',
 			'post_time'       => isset($data['post_time']) ? $data['post_time'] : time(),
 			'users_to_notify' => $user_ids,

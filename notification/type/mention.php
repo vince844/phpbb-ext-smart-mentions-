@@ -120,10 +120,11 @@ class mention extends \phpbb\notification\type\post
 	public function get_email_template_variables()
 	{
 		$user_data = $this->user_loader->get_user($this->get_data('poster_id'));
+		$username = !empty($user_data['username']) ? $user_data['username'] : $this->get_data('post_username');
 
 		return array_merge(parent::get_email_template_variables(), array(
-			'AUTHOR_NAME'		=> html_entity_decode($user_data['username'], ENT_COMPAT),
-			'POST_SUBJECT'		=> html_entity_decode($this->get_data('post_subject'), ENT_COMPAT),
+			'AUTHOR_NAME'		=> html_entity_decode((string) $username, ENT_COMPAT),
+			'POST_SUBJECT'		=> html_entity_decode((string) $this->get_data('post_subject'), ENT_COMPAT),
 		));
 	}
 
@@ -134,7 +135,7 @@ class mention extends \phpbb\notification\type\post
 	{
 		$this->set_data('poster_id', $post['poster_id']);
 		$this->set_data('topic_title', isset($post['topic_title']) ? $post['topic_title'] : '');
-		$this->set_data('post_subject', $post['post_subject']);
+		$this->set_data('post_subject', isset($post['post_subject']) ? $post['post_subject'] : '');
 		$this->set_data('post_username', isset($post['post_username']) ? $post['post_username'] : '');
 		$this->set_data('forum_id', $post['forum_id']);
 		$this->set_data('forum_name', isset($post['forum_name']) ? $post['forum_name'] : '');
