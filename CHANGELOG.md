@@ -11,6 +11,16 @@ Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/)
 
 ---
 
+## [1.0.0-b3] - 2026-09-25
+
+### Aggiunto (Added)
+- **Supporto Risposta Rapida / Quick Reply (Task SM-03)**:
+  - Esteso il selettore JavaScript di `mention_autocomplete.js` per agganciare sia l'editor classico (`textarea#message`) sia il box di Risposta Rapida (`textarea[name="message"]`).
+  - Il calcolo delle coordinate del caret e del posizionamento del menu opera dinamicamente su qualsiasi textarea attiva.
+  - Testato e validato su stili **prosilver** e **prosilver Special Edition**.
+- **Chiusura automatica del dropdown al click esterno (Task SM-05)**:
+  - Il popup dei suggerimenti dell'autocomplete si chiude immediatamente se l'utente clicca all'esterno dell'area di digitazione o del menu.
+
 ## [1.0.0-b2] - 2026-09-25
 
 ### Risolto (Fixed)
