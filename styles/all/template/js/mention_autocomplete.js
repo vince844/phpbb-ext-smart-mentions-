@@ -28,7 +28,7 @@
 			var textToCursor = currentTextarea.value.substring(0, cursorPosition);
 			
 			// Trova l'ultima occorrenza di @ che non sia preceduta da un carattere alfanumerico
-			var match = textToCursor.match(/(^|[^a-zA-Z0-9])@([a-zA-Z0-9_\-\.]*)$/);
+			var match = textToCursor.match(/(^|[^\p{L}\p{N}])@([\p{L}\p{N}_\-\.]*)$/u);
 
 			if (match) {
 				isMentioning = true;

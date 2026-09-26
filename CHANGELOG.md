@@ -11,6 +11,15 @@ Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/)
 
 ---
 
+## [1.0.0-b5] - 2026-09-26
+
+### Aggiunto / Risolto (Added / Fixed)
+- **Supporto caratteri Unicode e lettere accentate negli username (Task SM-04)**:
+  - Aggiornato il filtro s9e TextFormatter dell'attributo `username` in `main_listener.php` con la classe di caratteri Unicode `/^[\p{L}\p{N} _\-\.]{1,50}$/u`.
+  - Aggiornato il pattern `Preg->match` di s9e con lookbehind e capture group Unicode: `/(?J)(?<![\p{L}\p{N}])@(?:"(?<username>[^"]{1,50})"|(?<username>[\p{L}\p{N}_\-\.]{1,50}))/u`.
+  - Aggiornata la regex di rilevamento input in `mention_autocomplete.js` con supporto flag Unicode: `/(^|[^\p{L}\p{N}])@([\p{L}\p{N}_\-\.]*)$/u`.
+  - Garantito il corretto rilevamento di menzioni per utenti con caratteri accentati (es. `Nicolò`, `René`, `Müller`), con generazione automatica del link profilo URL-encoded e invio immediato della notifica.
+
 ## [1.0.0-b4] - 2026-09-25
 
 ### Risolto (Fixed)

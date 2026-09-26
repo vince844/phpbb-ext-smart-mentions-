@@ -11,7 +11,7 @@ Questo documento traccia i bug noti, le migliorie pianificate e i casi limite de
 | **SM-01** | 🔴 Alta | JS / Autocomplete | Autocomplete rimuove il carattere `@` alla selezione dal dropdown | `COMPLETATO` (v1.0.0-b4) |
 | **SM-02** | 🔴 Alta | Lingua | Stringa di notifica errata: `%2$s` stampa conteggio anziché titolo ("menzionato in: 1") | `COMPLETATO` (v1.0.0-b2) |
 | **SM-03** | 🟡 Media | JS / Template | Supporto Quick Reply (Risposta Rapida in basso nei topic) | `COMPLETATO` (v1.0.0-b3) |
-| **SM-04** | 🟡 Media | PHP / Regex | Supporto caratteri Unicode e lettere accentate negli username (`Nicolò`, `René`) | `DA FARE` |
+| **SM-04** | 🟡 Media | PHP / Regex | Supporto caratteri Unicode e lettere accentate negli username (`Nicolò`, `René`) | `COMPLETATO` (v1.0.0-b5) |
 | **SM-05** | 🟡 Media | JS / UX | Chiusura menu autocomplete al click fuori dalla textarea | `COMPLETATO` (v1.0.0-b3) |
 | **SM-06** | 🟡 Media | PHP / Notifiche | Pulizia notifiche orfane alla cancellazione di un post (`core.delete_posts_before`) | `DA FARE` |
 | **SM-07** | 🟢 Bassa | PHP / Permessi | Post in coda di moderazione: non inviare menzioni prima dell'approvazione | `DA FARE` |

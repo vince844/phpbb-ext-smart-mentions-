@@ -106,7 +106,7 @@ class main_listener implements EventSubscriberInterface
 			// Restrict the attribute to safe characters (alphanumeric, spaces, hyphens, underscores, dots)
 			// This is a defence-in-depth measure against XSS via malicious usernames.
 			$attribute->filterChain->append('#regexp')
-				->setRegexp('/^[a-zA-Z0-9 _\\-\\.]{1,50}$/');
+				->setRegexp('/^[\\p{L}\\p{N} _\\-\\.]{1,50}$/u');
 
 			// and xsl:value-of for safe text output (auto-escaped by XSLT).
 			$tag->template =
@@ -116,7 +116,7 @@ class main_listener implements EventSubscriberInterface
 		}
 
 		// Add a Preg match for @username and @"User Name"
-		$configurator->Preg->match('/(?J)(?<![a-zA-Z0-9])@(?:\"(?<username>[^\"]{1,50})\"|(?<username>[a-zA-Z0-9_\-\.]{1,50}))/', 'MENTION');
+		$configurator->Preg->match('/(?J)(?<![\\p{L}\\p{N}])@(?:\"(?<username>[^\"]{1,50})\"|(?<username>[\\p{L}\\p{N}_\\-\\.]{1,50}))/u', 'MENTION');
 	}
 
 	/**
