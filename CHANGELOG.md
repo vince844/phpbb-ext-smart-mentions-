@@ -1,78 +1,66 @@
 # Changelog — Smart Mentions (kondomanager/mention)
 
-Tutte le modifiche degne di nota apportate a questa estensione saranno documentate in questo file.
-Il formato è basato su [Keep a Changelog](https://keepachangelog.com/it/1.0.0/) e aderisce al [Semantic Versioning](https://semver.org/).
+All notable changes to this extension are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
 ## [Unreleased]
-### In programma
-- Consultare il file [`ROADMAP.md`](ROADMAP.md) per l'elenco completo dei task e bug in fase di lavorazione.
+### Planned
+- See [`ROADMAP.md`](ROADMAP.md) for the active task board and upcoming improvements.
 
 ---
 
 ## [1.0.0-b5] - 2026-09-26
 
-### Aggiunto / Risolto (Added / Fixed)
-- **Supporto caratteri Unicode e lettere accentate negli username (Task SM-04)**:
-  - Aggiornato il filtro s9e TextFormatter dell'attributo `username` in `main_listener.php` con la classe di caratteri Unicode `/^[\p{L}\p{N} _\-\.]{1,50}$/u`.
-  - Aggiornato il pattern `Preg->match` di s9e con lookbehind e capture group Unicode: `/(?J)(?<![\p{L}\p{N}])@(?:"(?<username>[^"]{1,50})"|(?<username>[\p{L}\p{N}_\-\.]{1,50}))/u`.
-  - Aggiornata la regex di rilevamento input in `mention_autocomplete.js` con supporto flag Unicode: `/(^|[^\p{L}\p{N}])@([\p{L}\p{N}_\-\.]*)$/u`.
-  - Garantito il corretto rilevamento di menzioni per utenti con caratteri accentati (es. `Nicolò`, `René`, `Müller`), con generazione automatica del link profilo URL-encoded e invio immediato della notifica.
+### Added / Fixed
+- **Support for Unicode and accented characters in usernames (Task SM-04)**:
+  - Updated the s9e TextFormatter `username` attribute filter in `main_listener.php` with the Unicode character class `/^[\p{L}\p{N} _\-\.]{1,50}$/u`.
+  - Updated the s9e `Preg->match` pattern with Unicode lookbehind and capture group: `/(?J)(?<![\p{L}\p{N}])@(?:"(?<username>[^"]{1,50})"|(?<username>[\p{L}\p{N}_\-\.]{1,50}))/u`.
+  - Updated the input detection regex in `mention_autocomplete.js` with the Unicode flag: `/(^|[^\p{L}\p{N}])@([\p{L}\p{N}_\-\.]*)$/u`.
+  - Provides full support for international and accented usernames (e.g., `Nicolò`, `René`, `Müller`, `José`), including automatic URL-encoding in profile links and real-time notification delivery.
+
+---
 
 ## [1.0.0-b4] - 2026-09-25
 
-### Risolto (Fixed)
-- **Autocomplete mantiene il carattere `@` alla selezione (Task SM-01)**:
-  - Riscritto il calcolo degli indici di inserimento (`mentionAtIndex` e `mentionEndIndex`) in `mention_autocomplete.js`.
-  - La funzione `insertMention` ora ricostruisce esplicitamente il token menzione con prefisso `@` (es. `@username` o `@"Nome Cognome"` in caso di spazi), garantendo che la chiocciola non vada mai persa alla selezione con mouse o tastiera (Invio/Tab) e che il motore s9e di phpBB riconosca sempre la menzione come link interattivo inviando la relativa notifica.
+### Fixed
+- **Autocomplete preserves `@` symbol upon suggestion selection (Task SM-01)**:
+  - Rewrote caret index calculation (`mentionAtIndex` and `mentionEndIndex`) in `mention_autocomplete.js`.
+  - `insertMention()` now explicitly reconstructs the mention token with the `@` prefix (e.g., `@username` or `@"First Last"` for names with spaces).
+  - Guarantees the `@` symbol is never stripped when selecting via mouse click or keyboard (`Enter` / `Tab`), allowing phpBB's s9e engine to reliably parse the text into interactive mention links and dispatch notifications.
+
+---
 
 ## [1.0.0-b3] - 2026-09-25
 
-### Aggiunto (Added)
-- **Supporto Risposta Rapida / Quick Reply (Task SM-03)**:
-  - Esteso il selettore JavaScript di `mention_autocomplete.js` per agganciare sia l'editor classico (`textarea#message`) sia il box di Risposta Rapida (`textarea[name="message"]`).
-  - Il calcolo delle coordinate del caret e del posizionamento del menu opera dinamicamente su qualsiasi textarea attiva.
-  - Testato e validato su stili **prosilver** e **prosilver Special Edition**.
-- **Chiusura automatica del dropdown al click esterno (Task SM-05)**:
-  - Il popup dei suggerimenti dell'autocomplete si chiude immediatamente se l'utente clicca all'esterno dell'area di digitazione o del menu.
+### Added
+- **Quick Reply box support (Task SM-03)**:
+  - Extended JavaScript selectors in `mention_autocomplete.js` to target both standard full editor (`textarea#message`) and Quick Reply editor (`textarea[name="message"]`).
+  - Implemented dynamic caret coordinate calculation and popup anchoring across any active textarea.
+  - Fully tested and validated on **prosilver** and **prosilver Special Edition**.
+- **Click-outside popup dismissal (Task SM-05)**:
+  - The autocomplete suggestions dropdown closes immediately when clicking outside the active textarea or the popup menu.
+
+---
 
 ## [1.0.0-b2] - 2026-09-25
 
-### Risolto (Fixed)
-- **Placeholder errato stringa di notifica (`NOTIFICATION_MENTION`, Task SM-02)**:
-  - Rimosso il placeholder `%2$s` dalle stringhe in `language/it/notification.php` e `language/en/notification.php`.
-  - In phpBB `\phpbb\notification\type\post::get_title()` il secondo parametro passato è `$responders_cnt` (il conteggio numerico, tipicamente `1`), non il titolo della discussione (che viene già renderizzato separatamente da `get_reference()`).
-  - Corretta la frase in *"Sei stato menzionato da %1$s in:"* (IT) e *"You were mentioned by %1$s in:"* (EN), eliminando la dicitura anomala *"menzionato in: 1"*.
+### Fixed
+- **Notification string placeholder bug (`NOTIFICATION_MENTION`, Task SM-02)**:
+  - Removed incorrect `%2$s` placeholder in `language/it/notification.php` and `language/en/notification.php`.
+  - In phpBB `\phpbb\notification\type\post::get_title()`, the second parameter is `$responders_cnt` (an integer count, usually `1`), not the topic title (which is already rendered separately by `get_reference()`).
+  - Fixed strings to *"You were mentioned by %1$s in:"* (EN) and *"Sei stato menzionato da %1$s in:"* (IT), eliminating the awkward *"mentioned in: 1"* output.
 
 ---
 
 ## [1.0.0-b1] - 2026-09-25
 
-### Risolto (Fixed)
-- **PHP Warning `Undefined array key "post_subject"` e blocco invio post**:
-  - Risolto errore critico durante la pubblicazione e modifica dei post: in phpBB `$data` non include `post_subject`, che risiede invece in `$event['subject']`.
-  - Risolto conseguente blocco PHP Warning `Cannot modify header information - headers already sent` dovuto all'output inviato prima del redirect.
-  - Aggiunti controlli di fallback sicuri per `post_subject`, `topic_title` e `post_username` nel listener eventi.
-  - Aggiunto controllo `isset($post['post_subject'])` difensivo in `create_insert_array()` per prevenire warning su chiamate esterne.
-  - Cast esplicito a stringa dei parametri in `html_entity_decode()` per evitare deprecation warning su PHP 8.1+.
-- **Caricamento lingua nel Pannello di Controllo Utente (UCP)**:
-  - Agganciato evento `core.user_setup` per registrare i file di lingua globalmente, garantendo la visualizzazione corretta delle opzioni di notifica menzioni nel pannello utente.
-- **Ripristino template email menzioni**:
-  - Ripristinata la corretta associazione del template email `@kondomanager_mention/user_mention` sia in lingua inglese che italiana.
-- **Sessione utente durante autocomplete**:
-  - Aggiunto `credentials: 'same-origin'` e header `X-Requested-With: XMLHttpRequest` nelle chiamate fetch JavaScript per evitare disconnessioni accidentali della sessione utente phpBB.
-- **Posizionamento caret autocomplete**:
-  - Risolto allineamento orizzontale e verticale del popup dei suggerimenti in modo da seguire dinamicamente la posizione del cursore nella textarea.
-
-### Aggiunto (Added)
-- **Integrazione completa notifiche di sistema**:
-  - Notifiche sia a schermo (campanella) che via email configurate come attive di default, con possibilità di personalizzazione nel Pannello Utente (UCP).
-  - File email bilingue (`language/it/email/user_mention.txt` e `language/en/email/user_mention.txt`).
-- **Interfaccia moderna Autocomplete**:
-  - Stile Glassmorphism per il dropdown con blur, ombreggiatura morbida e freccia di ancoraggio.
-  - Supporto navigazione con tastiera (`Freccia Su`, `Freccia Giù`, `Invio`, `Tab`, `Esc`).
-- **Protezione Anti-Abuso e Sicurezza**:
-  - Limite massimo configurato a 15 menzioni per post per prevenire flooding e abusi.
-  - Parsing XML sicuro tramite `DOMDocument` per evitare injection nel testo s9e.
-  - Filtro dei permessi di lettura forum prima dell'invio delle notifiche per evitare disclosure di messaggi riservati.
+### Added
+- Initial beta release of Smart Mentions for phpBB 3.3.x.
+- Real-time `@username` autocomplete with glassmorphism UI.
+- Native board bell notifications and email notifications.
+- Quoted usernames support for names with spaces: `@"First Last"`.
+- Rate-limiting & safe DOM parsing for s9e TextFormatter.

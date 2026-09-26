@@ -1,121 +1,120 @@
-# Roadmap di Sviluppo — Smart Mentions (kondomanager/mention)
+# Development Roadmap — Smart Mentions (kondomanager/mention)
 
-Questo documento traccia i bug noti, le migliorie pianificate e i casi limite dell'estensione, con priorità e relativi piani di test per la validazione in ambiente locale prima del deploy in produzione.
+This document tracks known issues, planned improvements, edge cases, priorities, and local test plans for validation before production deployment.
 
 ---
 
 ## 🎯 Task Board
 
-| ID | Priorità | Modulo | Descrizione sintetica | Stato |
+| ID | Priority | Module | Summary | Status |
 |:---|:---|:---|:---|:---|
-| **SM-01** | 🔴 Alta | JS / Autocomplete | Autocomplete rimuove il carattere `@` alla selezione dal dropdown | `COMPLETATO` (v1.0.0-b4) |
-| **SM-02** | 🔴 Alta | Lingua | Stringa di notifica errata: `%2$s` stampa conteggio anziché titolo ("menzionato in: 1") | `COMPLETATO` (v1.0.0-b2) |
-| **SM-03** | 🟡 Media | JS / Template | Supporto Quick Reply (Risposta Rapida in basso nei topic) | `COMPLETATO` (v1.0.0-b3) |
-| **SM-04** | 🟡 Media | PHP / Regex | Supporto caratteri Unicode e lettere accentate negli username (`Nicolò`, `René`) | `COMPLETATO` (v1.0.0-b5) |
-| **SM-05** | 🟡 Media | JS / UX | Chiusura menu autocomplete al click fuori dalla textarea | `COMPLETATO` (v1.0.0-b3) |
-| **SM-06** | 🟡 Media | PHP / Notifiche | Pulizia notifiche orfane alla cancellazione di un post (`core.delete_posts_before`) | `DA FARE` |
-| **SM-07** | 🟢 Bassa | PHP / Permessi | Post in coda di moderazione: non inviare menzioni prima dell'approvazione | `DA FARE` |
-| **SM-08** | 🟢 Bassa | PHP / Controller | Protezione endpoint autocomplete: permessi `u_viewprofile` ed escaping wildcard SQL | `DA FARE` |
-| **SM-09** | 🟢 Bassa | PHP / Parser | Evitare notifiche duplicate se la menzione è all'interno di un `[quote]` | `DA FARE` |
-| **SM-10** | 🟢 Bassa | PHP / Template | URL-encoding di `@username` nel link del profilo generato per username con spazi | `DA FARE` |
+| **SM-01** | 🔴 High | JS / Autocomplete | Autocomplete removes `@` character when selecting a suggestion | `COMPLETED` (v1.0.0-b4) |
+| **SM-02** | 🔴 High | Language | Incorrect notification string: `%2$s` outputs count instead of topic ("mentioned in: 1") | `COMPLETED` (v1.0.0-b2) |
+| **SM-03** | 🟡 Medium | JS / Template | Quick Reply support (bottom of topics) | `COMPLETED` (v1.0.0-b3) |
+| **SM-04** | 🟡 Medium | PHP / Regex | Support Unicode and accented characters in usernames (`Nicolò`, `René`) | `COMPLETED` (v1.0.0-b5) |
+| **SM-05** | 🟡 Medium | JS / UX | Dismiss autocomplete dropdown on outside click | `COMPLETED` (v1.0.0-b3) |
+| **SM-06** | 🟡 Medium | PHP / Notifications | Clean up orphaned notifications upon post deletion (`core.delete_posts_before`) | `TO DO` |
+| **SM-07** | 🟢 Low | PHP / Permissions | Unapproved posts in moderation queue: do not trigger notifications until approved | `TO DO` |
+| **SM-08** | 🟢 Low | PHP / Controller | Autocomplete endpoint hardening: check `u_viewprofile` and escape SQL wildcards | `TO DO` |
+| **SM-09** | 🟢 Low | PHP / Parser | Prevent duplicate mention notifications inside `[quote]` blocks | `TO DO` |
+| **SM-10** | 🟢 Low | PHP / Template | URL-encode `@username` in profile link for usernames with spaces | `TO DO` |
 
 ---
 
-## 📋 Dettaglio dei Task e Piani di Test
+## 📋 Task Details & Test Plans
 
-### SM-01: Autocomplete rimuove il carattere `@` alla selezione
-- **Problema:** Quando l'utente seleziona uno username suggerito dal menu popup, la funzione `insertMention` taglia la stringa prima della chiocciola e inserisce solo `username `, perdendo il simbolo `@`. Il motore s9e di phpBB non rileva il testo come menzione.
-- **File coinvolti:** `styles/all/template/js/mention_autocomplete.js`
-- **Piano di Test Locale:**
-  1. Digitare `@adm` nella textarea di un post.
-  2. Cliccare sulla voce suggerita `admin` (o premere `Invio`/`Tab`).
-  3. Verificare che nel messaggio appaia `@admin ` e non `admin `.
-  4. Pubblicare il post e verificare che il testo diventi un link azzurro evidenziato e la notifica venga recapitata.
-
----
-
-### SM-02: Stringa di notifica errata (`NOTIFICATION_MENTION`)
-- **Problema:** `%2$s` nei file di lingua per `\phpbb\notification\type\post` corrisponde a `$responders_cnt` (un intero, tipicamente `1`), mentre il titolo del topic viene già renderizzato da `get_reference()`. Attualmente genera la frase *"Sei stato menzionato da Admin in: 1"*.
-- **File coinvolti:** `language/it/notification.php`, `language/en/notification.php`
-- **Piano di Test Locale:**
-  1. Menzionare un utente di test in una discussione.
-  2. Accedere con l'utente menzionato e aprire la tendina delle notifiche (icona campana).
-  3. Verificare che il testo visualizzato sia pulito (es. *"Sei stato menzionato da Admin nella discussione:"* seguito dal titolo sotto tra virgolette).
+### SM-01: Autocomplete removes `@` symbol upon selection
+- **Issue:** When selecting a username suggestion from the popup, `insertMention` stripped the text before the `@` symbol, inserting only `username `. phpBB's s9e engine failed to parse it as a mention.
+- **Affected Files:** `styles/all/template/js/mention_autocomplete.js`
+- **Local Test Plan:**
+  1. Type `@adm` in the post textarea.
+  2. Click the suggested `admin` item (or press `Enter`/`Tab`).
+  3. Verify that the textarea contains `@admin ` and not `admin `.
+  4. Submit the post and confirm that the text renders as an active mention link and dispatches a notification.
 
 ---
 
-### SM-03: Supporto al box Risposta Rapida (Quick Reply)
-- **Problema:** Il selettore JavaScript cerca solo `document.getElementById('message')`. Nel template prosilver standard `quickreply_editor.html`, la textarea ha `name="message"` ma non ha l'`id`. L'autocomplete non si apre nel quick reply.
-- **File coinvolti:** `styles/all/template/js/mention_autocomplete.js`
-- **Piano di Test Locale:**
-  1. Aprire un topic esistente e scorrere in fondo al box "Risposta Rapida".
-  2. Digitare `@` seguito da due lettere.
-  3. Verificare che il dropdown appaia correttamente sopra/sotto il cursore anche nel quick reply.
+### SM-02: Incorrect notification string (`NOTIFICATION_MENTION`)
+- **Issue:** In phpBB `\phpbb\notification\type\post`, `%2$s` represents `$responders_cnt` (an integer count, usually `1`), while the topic title is already rendered by `get_reference()`. This produced awkward strings like *"You were mentioned by Admin in: 1"*.
+- **Affected Files:** `language/it/notification.php`, `language/en/notification.php`
+- **Local Test Plan:**
+  1. Mention a test user in a topic.
+  2. Log in as the mentioned user and open the notification bell dropdown.
+  3. Verify clean wording (e.g., *"You were mentioned by Admin in:"* followed by the topic title below).
 
 ---
 
-### SM-04: Supporto caratteri Unicode e lettere accentate
-- **Problema:** I pattern regex in `main_listener.php` usano classi strettamente ASCII (`[a-zA-Z0-9_\-\.]`) senza modificatore `/u`. Username come `Nicolò` o `René` vengono troncati o scartati.
-- **File coinvolti:** `event/main_listener.php`
-- **Piano di Test Locale:**
-  1. Creare un utente di test con accento (es. `utente_città`).
-  2. Scrivere un messaggio contenente `@utente_città`.
-  3. Verificare che s9e TextFormatter trasformi l'intera parola in link di menzione e che la notifica arrivi.
+### SM-03: Quick Reply editor support
+- **Issue:** The JavaScript selector only queried `document.getElementById('message')`. In prosilver's `quickreply_editor.html`, the textarea has `name="message"` but lacks an `id`. The autocomplete did not trigger in Quick Reply.
+- **Affected Files:** `styles/all/template/js/mention_autocomplete.js`
+- **Local Test Plan:**
+  1. Open an existing topic and scroll down to the Quick Reply box.
+  2. Type `@` followed by two letters.
+  3. Verify that the autocomplete dropdown appears correctly anchored to the caret inside Quick Reply.
 
 ---
 
-### SM-05: Chiusura dropdown autocomplete su click esterno
-- **Problema:** Se il menu a tendina dell'autocomplete è aperto e l'utente clicca altrove nella pagina (fuori dalla textarea), il popup rimane bloccato a video finché non viene premuto `Esc`.
-- **File coinvolti:** `styles/all/template/js/mention_autocomplete.js`
-- **Piano di Test Locale:**
-  1. Digitare `@ad` per far comparire il popup.
-  2. Cliccare con il mouse in un punto vuoto della pagina.
-  3. Verificare che il popup si chiuda immediatamente.
+### SM-04: Unicode and accented characters in usernames
+- **Issue:** Regex patterns in `main_listener.php` used strict ASCII ranges (`[a-zA-Z0-9_\-\.]`) without the `/u` modifier. Usernames such as `Nicolò` or `René` were truncated or ignored.
+- **Affected Files:** `event/main_listener.php`
+- **Local Test Plan:**
+  1. Create a test user with accented letters (e.g., `Nicolò`).
+  2. Compose a post containing `@Nicolò`.
+  3. Verify that s9e TextFormatter transforms the full word into a mention link and delivers the notification.
 
 ---
 
-### SM-06: Cancellazione notifiche orfane alla cancellazione post
-- **Problema:** Quando un post con menzioni viene eliminato, la notifica rimane nel database di phpBB e nella campanella dell'utente. Cliccandoci si ottiene un errore 404/post non trovato.
-- **File coinvolti:** `event/main_listener.php`
-- **Piano di Test Locale:**
-  1. Menzionare un utente in un post.
-  2. Verificare che la notifica compaia nella campanella del destinatario.
-  3. Da moderatore o autore, cancellare il post.
-  4. Ricaricare la pagina con l'utente menzionato: verificare che la notifica sia stata rimossa automaticamente dal DB.
+### SM-05: Dismiss autocomplete popup on outside click
+- **Issue:** When the autocomplete dropdown is open, clicking anywhere else on the page did not dismiss it until `Escape` was pressed.
+- **Affected Files:** `styles/all/template/js/mention_autocomplete.js`
+- **Local Test Plan:**
+  1. Type `@ad` to display the dropdown.
+  2. Click anywhere outside the textarea and dropdown.
+  3. Verify that the dropdown closes immediately.
 
 ---
 
-### SM-07: Post in coda di moderazione
-- **Problema:** Se un messaggio richiede approvazione (`post_visibility != ITEM_APPROVED`), la menzione viene inviata subito via email e campanella prima dell'approvazione del moderatore.
-- **File coinvolti:** `event/main_listener.php`
-- **Piano di Test Locale:**
-  1. Inviare un post con un utente che ha i messaggi in coda di moderazione.
-  2. Verificare che la notifica **non** parta finché il post non viene approvato.
+### SM-06: Clean up orphaned notifications on post deletion
+- **Issue:** When a post containing mentions is deleted, its notification remains in phpBB's notification list. Clicking it leads to a 404 / post not found error.
+- **Affected Files:** `event/main_listener.php`
+- **Local Test Plan:**
+  1. Mention a user in a post and verify notification receipt.
+  2. Delete the post as moderator or author.
+  3. Verify that the notification is automatically removed from the database and user bell dropdown.
 
 ---
 
-### SM-08: Sicurezza Autocomplete (Permessi & SQL Wildcard)
-- **Problema:** L'endpoint `/mention/autocomplete` non controlla `u_viewprofile` e la clausola SQL `LIKE` non effettua l'escape dei caratteri `%` e `_`.
-- **File coinvolti:** `controller/autocomplete.php`
-- **Piano di Test Locale:**
-  1. Effettuare una chiamata da utente anonimo quando il forum vieta la visualizzazione iscritti: verificare che risponda array vuoto `[]`.
-  2. Digitare `@_` o `@%` e verificare che non esegua wildcard SQL incontrollate.
+### SM-07: Posts in moderation queue
+- **Issue:** If a post requires moderator approval (`post_visibility != ITEM_APPROVED`), mentions trigger notifications before the post is reviewed and approved.
+- **Affected Files:** `event/main_listener.php`
+- **Local Test Plan:**
+  1. Submit a post with a user in the newly registered / moderated queue.
+  2. Verify that mention notifications are deferred until the post is approved.
 
 ---
 
-### SM-09: Menzioni duplicate all'interno dei Quote
-- **Problema:** Quando si cita un messaggio con `[quote]`, i tag `<MENTION>` citati vengono nuovamente conteggiati, notificando nuovamente gli utenti.
-- **File coinvolti:** `event/main_listener.php`
-- **Piano di Test Locale:**
-  1. L'utente A menziona l'utente B.
-  2. L'utente C fa "Cita" del post di A.
-  3. Verificare che B non riceva una seconda notifica di menzione per il solo fatto di essere stato citato nel quote.
+### SM-08: Autocomplete endpoint hardening (Permissions & SQL Wildcards)
+- **Issue:** `/mention/autocomplete` does not verify `u_viewprofile` permissions, and the SQL `LIKE` query does not escape `%` or `_` characters.
+- **Affected Files:** `controller/autocomplete.php`
+- **Local Test Plan:**
+  1. Request autocomplete as an anonymous guest on a forum where memberlist viewing is restricted: verify it returns `[]`.
+  2. Query `@_` or `@%` and verify SQL executes properly without runaway wildcards.
 
 ---
 
-### SM-10: URL-encoding degli username con spazi
-- **Problema:** Quando si menziona `@"Nome Cognome"`, l'attributo `href="memberlist.php?mode=viewprofile&un={@username}"` genera uno spazio non codificato nell'URL.
-- **File coinvolti:** `event/main_listener.php`
-- **Piano di Test Locale:**
-  1. Menzionare un utente con spazi nel nome: `@"Mario Rossi"`.
-  2. Cliccare sul link generato nel post: verificare che reindirizzi correttamente al profilo senza generare URL malformati.
+### SM-09: Duplicate mentions inside `[quote]` blocks
+- **Issue:** Quoting a post containing a mention re-evaluates `<MENTION>` tags, sending another notification to the mentioned user.
+- **Affected Files:** `event/main_listener.php`
+- **Local Test Plan:**
+  1. User A mentions User B.
+  2. User C quotes User A's post.
+  3. Verify that User B does not receive a second notification solely from being quoted.
+
+---
+
+### SM-10: URL-encoding usernames with spaces
+- **Issue:** Mentioning `@"First Last"` generates an unencoded space in `memberlist.php?mode=viewprofile&un={@username}`.
+- **Affected Files:** `event/main_listener.php`
+- **Local Test Plan:**
+  1. Mention a user with spaces in their name: `@"Jane Doe"`.
+  2. Click the profile link in the posted message and verify the URL is valid and navigates properly.
