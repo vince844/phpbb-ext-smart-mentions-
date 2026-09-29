@@ -63,6 +63,8 @@ class main_listener implements EventSubscriberInterface
 			'core.text_formatter_s9e_configure_after' => 'configure_s9e_after',
 			'core.submit_post_end'                    => 'submit_post_end',
 			'core.delete_posts_before'                => 'delete_posts_before',
+			'core.approve_posts_after'                => 'approve_posts_after',
+			'core.approve_topics_after'               => 'approve_topics_after',
 		];
 	}
 
@@ -123,9 +125,7 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * Handle post submission: extract mentions and send notifications.
 	 *
-	 * FIX #2 (XML injection): Uses DOMDocument instead of regex to parse s9e XML.
-	 * FIX #3 (Flooding):      Limits mentions to MAX_MENTIONS_PER_POST.
-	 * FIX #5 (Duplicate):     On edit, skips users who were already notified.
+	 * SM-07: Defers notifications if the post is in the moderation queue (unapproved).
 	 */
 	public function submit_post_end($event)
 	{
@@ -138,7 +138,110 @@ class main_listener implements EventSubscriberInterface
 			return;
 		}
 
-		$post_text = $data['message'];
+		// SM-07: If the post is unapproved (moderation queue) or deleted, do not send notifications yet
+		$post_visibility = isset($event['post_visibility'])
+			? $event['post_visibility']
+			: (isset($data['post_visibility']) ? $data['post_visibility'] : (defined('ITEM_APPROVED') ? ITEM_APPROVED : 1));
+
+		if ($post_visibility != (defined('ITEM_APPROVED') ? ITEM_APPROVED : 1))
+		{
+			return;
+		}
+
+		$post_subject = !empty($event['subject']) ? $event['subject'] : (isset($data['post_subject']) ? $data['post_subject'] : (isset($data['topic_title']) ? $data['topic_title'] : ''));
+		$topic_title = !empty($data['topic_title']) ? $data['topic_title'] : $post_subject;
+		$post_username = !empty($event['username']) ? $event['username'] : (isset($data['post_username']) ? $data['post_username'] : '');
+
+		$post_data = [
+			'post_id'       => (int) $data['post_id'],
+			'topic_id'      => (int) $data['topic_id'],
+			'forum_id'      => (int) $data['forum_id'],
+			'poster_id'     => (int) $data['poster_id'],
+			'post_subject'  => $post_subject,
+			'topic_title'   => $topic_title,
+			'post_username' => $post_username,
+			'forum_name'    => isset($data['forum_name']) ? $data['forum_name'] : '',
+			'post_time'     => isset($data['post_time']) ? $data['post_time'] : time(),
+			'post_text'     => $data['message'],
+		];
+
+		$this->process_mention_notifications($post_data);
+	}
+
+	/**
+	 * Handle mentions when unapproved posts are approved by a moderator.
+	 *
+	 * @param \phpbb\event\data $event The event object
+	 */
+	public function approve_posts_after($event)
+	{
+		if ($event['action'] !== 'approve')
+		{
+			return;
+		}
+
+		$post_info = $event['post_info'];
+		if (empty($post_info) || !is_array($post_info))
+		{
+			return;
+		}
+
+		foreach ($post_info as $post_id => $post_data)
+		{
+			$this->process_mention_notifications($post_data);
+		}
+	}
+
+	/**
+	 * Handle mentions when unapproved topics are approved by a moderator.
+	 *
+	 * @param \phpbb\event\data $event The event object
+	 */
+	public function approve_topics_after($event)
+	{
+		if ($event['action'] !== 'approve')
+		{
+			return;
+		}
+
+		$topic_info = $event['topic_info'];
+		if (empty($topic_info) || !is_array($topic_info))
+		{
+			return;
+		}
+
+		foreach ($topic_info as $topic_id => $topic_data)
+		{
+			$post_data = array_merge($topic_data, [
+				'post_id'       => (int) $topic_data['topic_first_post_id'],
+				'post_subject'  => $topic_data['topic_title'],
+				'post_time'     => isset($topic_data['topic_time']) ? $topic_data['topic_time'] : time(),
+				'poster_id'     => (int) $topic_data['topic_poster'],
+				'post_username' => isset($topic_data['topic_first_poster_name']) ? $topic_data['topic_first_poster_name'] : '',
+			]);
+
+			$this->process_mention_notifications($post_data);
+		}
+	}
+
+	/**
+	 * Extract mentions and dispatch notifications for an approved post.
+	 *
+	 * FIX #2 (XML injection): Uses DOMDocument instead of regex to parse s9e XML.
+	 * FIX #3 (Flooding):      Limits mentions to MAX_MENTIONS_PER_POST.
+	 * FIX #5 (Duplicate):     Skips users who were already notified for this post.
+	 *
+	 * @param array $post_data Data representing the post
+	 */
+	protected function process_mention_notifications(array $post_data)
+	{
+		$post_id = (int) $post_data['post_id'];
+		$post_text = isset($post_data['post_text']) ? $post_data['post_text'] : (isset($post_data['message']) ? $post_data['message'] : '');
+
+		if (empty($post_text))
+		{
+			return;
+		}
 
 		// FIX #2: Extract mentioned usernames using DOMDocument (safe XML parsing)
 		$usernames = $this->extract_mentioned_usernames($post_text);
@@ -154,10 +257,11 @@ class main_listener implements EventSubscriberInterface
 		$usernames_clean = array_map('utf8_clean_string', $usernames);
 
 		// Look up user IDs for the mentioned usernames, excluding the post author
+		$poster_id = (int) $post_data['poster_id'];
 		$sql = 'SELECT user_id
 			FROM ' . USERS_TABLE . '
 			WHERE ' . $this->db->sql_in_set('username_clean', $usernames_clean) . '
-				AND user_id <> ' . (int) $data['poster_id'] . '
+				AND user_id <> ' . $poster_id . '
 				AND user_type <> ' . USER_IGNORE;
 		$result = $this->db->sql_query($sql);
 
@@ -173,40 +277,40 @@ class main_listener implements EventSubscriberInterface
 			return;
 		}
 
-		// FIX #5: On edit, exclude users who were already notified for this post
-		$is_edit = in_array($mode, ['edit', 'edit_first_post', 'edit_last_post', 'edit_topic'], true);
-		if ($is_edit)
+		// FIX #5: Exclude users who were already notified for this post (prevents duplicates on edit or approval)
+		$already_notified = $this->notification_manager->get_notified_users(
+			'kondomanager.mention.notification.type.mention',
+			['item_id' => $post_id]
+		);
+
+		if (!empty($already_notified))
 		{
-			$already_notified = $this->notification_manager->get_notified_users(
-				'kondomanager.mention.notification.type.mention',
-				['item_id' => (int) $data['post_id']]
-			);
-
-			if (!empty($already_notified))
-			{
-				$user_ids = array_diff($user_ids, array_keys($already_notified));
-			}
-
-			if (empty($user_ids))
-			{
-				return;
-			}
+			$user_ids = array_diff($user_ids, array_keys($already_notified));
 		}
 
-		$post_subject = !empty($event['subject']) ? $event['subject'] : (isset($data['post_subject']) ? $data['post_subject'] : (isset($data['topic_title']) ? $data['topic_title'] : ''));
-		$topic_title = !empty($data['topic_title']) ? $data['topic_title'] : $post_subject;
-		$post_username = !empty($event['username']) ? $event['username'] : (isset($data['post_username']) ? $data['post_username'] : '');
+		if (empty($user_ids))
+		{
+			return;
+		}
+
+		$post_subject = !empty($post_data['post_subject'])
+			? $post_data['post_subject']
+			: (!empty($post_data['topic_title']) ? $post_data['topic_title'] : '');
+		$topic_title = !empty($post_data['topic_title']) ? $post_data['topic_title'] : $post_subject;
+		$post_username = !empty($post_data['post_username'])
+			? $post_data['post_username']
+			: (!empty($post_data['username']) ? $post_data['username'] : '');
 
 		$notification_data = [
-			'post_id'         => (int) $data['post_id'],
-			'topic_id'        => (int) $data['topic_id'],
-			'forum_id'        => (int) $data['forum_id'],
+			'post_id'         => $post_id,
+			'topic_id'        => (int) $post_data['topic_id'],
+			'forum_id'        => (int) $post_data['forum_id'],
 			'post_subject'    => $post_subject,
-			'poster_id'       => (int) $data['poster_id'],
+			'poster_id'       => $poster_id,
 			'topic_title'     => $topic_title,
 			'post_username'   => $post_username,
-			'forum_name'      => isset($data['forum_name']) ? $data['forum_name'] : '',
-			'post_time'       => isset($data['post_time']) ? $data['post_time'] : time(),
+			'forum_name'      => isset($post_data['forum_name']) ? $post_data['forum_name'] : '',
+			'post_time'       => isset($post_data['post_time']) ? $post_data['post_time'] : time(),
 			'users_to_notify' => $user_ids,
 		];
 

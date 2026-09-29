@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0-b7] - 2026-09-29
+
+### Added / Fixed
+- **Defer mention notifications for unapproved posts in moderation queue (Task SM-07)**:
+  - Guarded post submission in `submit_post_end` by checking `$post_visibility`: posts awaiting moderator approval (`post_visibility != ITEM_APPROVED`, such as newly registered users or moderated forums) will no longer prematurely dispatch mention notifications.
+  - Subscribed to phpBB core events `core.approve_posts_after` and `core.approve_topics_after`.
+  - Mentions in queued posts and topics are now automatically extracted and delivered to mentioned users as soon as the moderator approves the post/topic in the MCP.
+  - Re-approval and edit deduplication guarantees no duplicate notifications are sent to users.
+
+---
+
 ## [1.0.0-b6] - 2026-09-29
 
 ### Fixed

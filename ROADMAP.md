@@ -14,7 +14,7 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 | **SM-04** | 🟡 Medium | PHP / Regex | Support Unicode and accented characters in usernames (`Nicolò`, `René`) | `COMPLETED` (v1.0.0-b5) |
 | **SM-05** | 🟡 Medium | JS / UX | Dismiss autocomplete dropdown on outside click | `COMPLETED` (v1.0.0-b3) |
 | **SM-06** | 🟡 Medium | PHP / Notifications | Clean up orphaned notifications upon post deletion (`core.delete_posts_before`) | `COMPLETED` (v1.0.0-b6) |
-| **SM-07** | 🟢 Low | PHP / Permissions | Unapproved posts in moderation queue: do not trigger notifications until approved | `TO DO` |
+| **SM-07** | 🟢 Low | PHP / Permissions | Unapproved posts in moderation queue: do not trigger notifications until approved | `COMPLETED` (v1.0.0-b7) |
 | **SM-08** | 🟢 Low | PHP / Controller | Autocomplete endpoint hardening: check `u_viewprofile` and escape SQL wildcards | `TO DO` |
 | **SM-09** | 🟢 Low | PHP / Parser | Prevent duplicate mention notifications inside `[quote]` blocks | `TO DO` |
 | **SM-10** | 🟢 Low | PHP / Template | URL-encode `@username` in profile link for usernames with spaces | `TO DO` |
