@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0-b10] - 2026-09-29
+
+### Fixed
+- **URL-encode username parameter in memberlist profile links (Task SM-10)**:
+  - Added `filter_mention_tag()` tag filter to s9e configuration in `event/main_listener.php`.
+  - Automatically computes a URL-safe `@url` attribute using `rawurlencode()` on the mention username.
+  - Generates RFC 3986-compliant profile links for usernames containing spaces (e.g. `memberlist.php?mode=viewprofile&un=Jane%20Doe`) and international/accented characters (e.g. `un=Nicol%C3%B2`).
+  - Added XSLT `<xsl:choose>` fallback in the mention link template to ensure seamless backward compatibility with existing legacy posts.
+
+---
+
 ## [1.0.0-b9] - 2026-09-29
 
 ### Fixed

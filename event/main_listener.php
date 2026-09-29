@@ -97,6 +97,24 @@ class main_listener implements EventSubscriberInterface
 	 *   attribute via urlencode() in XSLT, and uses xsl:value-of which is
 	 *   auto-escaped by the XSLT processor in text nodes.
 	 */
+	public static function filter_mention_tag($tag)
+	{
+		if ($tag->hasAttribute('username'))
+		{
+			$tag->setAttribute('url', rawurlencode($tag->getAttribute('username')));
+		}
+		return true;
+	}
+
+	/**
+	 * Configure the s9e TextFormatter to recognise @mention syntax.
+	 *
+	 * FIX #1 (XSS): The template now URL-encodes the username in the href
+	 *   attribute via urlencode() in XSLT, and uses xsl:value-of which is
+	 *   auto-escaped by the XSLT processor in text nodes.
+	 * SM-10: Computes @url attribute via filter_mention_tag() to URL-encode usernames
+	 *   with spaces or special characters in memberlist profile links.
+	 */
 	public function configure_s9e_after($event)
 	{
 		$configurator = $event['configurator'];
@@ -109,17 +127,31 @@ class main_listener implements EventSubscriberInterface
 			// Restrict the attribute to safe characters (alphanumeric, spaces, hyphens, underscores, dots)
 			// This is a defence-in-depth measure against XSS via malicious usernames.
 			$attribute->filterChain->append('#regexp')
-				->setRegexp('/^[\\p{L}\\p{N} _\\-\\.]{1,50}$/u');
+				->setRegexp('/^[\p{L}\p{N} _\-\.]{1,50}$/u');
+
+			// SM-10: Optional URL-encoded attribute for memberlist profile link
+			$url_attribute = $tag->attributes->add('url');
+			$url_attribute->required = false;
+
+			$tag->filterChain->append(['kondomanager\mention\event\main_listener', 'filter_mention_tag']);
 
 			// and xsl:value-of for safe text output (auto-escaped by XSLT).
+			// SM-10: URL-encode profile link parameter with fallback for legacy posts.
 			$tag->template =
-				'<a href="memberlist.php?mode=viewprofile&amp;un={@username}" class="mention">' .
+				'<a class="mention">' .
+					'<xsl:attribute name="href">' .
+						'<xsl:text>memberlist.php?mode=viewprofile&amp;un=</xsl:text>' .
+						'<xsl:choose>' .
+							'<xsl:when test="@url"><xsl:value-of select="@url"/></xsl:when>' .
+							'<xsl:otherwise><xsl:value-of select="@username"/></xsl:otherwise>' .
+						'</xsl:choose>' .
+					'</xsl:attribute>' .
 					'@<xsl:value-of select="@username"/>' .
 				'</a>';
 		}
 
 		// Add a Preg match for @username and @"User Name"
-		$configurator->Preg->match('/(?J)(?<![\\p{L}\\p{N}])@(?:\"(?<username>[^\"]{1,50})\"|(?<username>[\\p{L}\\p{N}_\\-\\.]{1,50}))/u', 'MENTION');
+		$configurator->Preg->match('/(?J)(?<![\p{L}\p{N}])@(?:\"(?<username>[^\"]{1,50})\"|(?<username>[\p{L}\p{N}_\-\.]{1,50}))/u', 'MENTION');
 	}
 
 	/**
