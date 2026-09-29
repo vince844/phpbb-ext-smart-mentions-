@@ -24,3 +24,4 @@ services:
             - '@dbal.conn'
             - '@request'
             - '@user'
+            - '@auth'

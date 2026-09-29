@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0-b8] - 2026-09-29
+
+### Security / Hardening
+- **Autocomplete endpoint hardening (Task SM-08)**:
+  - Injected `@auth` service into `kondomanager.mention.controller.autocomplete`.
+  - Added authorization check for `u_viewprofile` at the start of `handle()`: requests from unauthenticated guests or accounts without profile viewing permission immediately receive an empty JSON array `[]`, mitigating unauthorized user enumeration.
+  - Replaced manual/raw `LIKE` string concatenation with phpBB DBAL's `$this->db->sql_like_expression($search_clean . $this->db->get_any_char())`.
+  - Automatically escapes SQL wildcards (literal `_` and `%`) in user input to prevent runaway wildcard matches or DB performance degradation.
+
+---
+
 ## [1.0.0-b7] - 2026-09-29
 
 ### Added / Fixed

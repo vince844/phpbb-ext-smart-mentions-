@@ -24,20 +24,37 @@ class autocomplete
 	/** @var \phpbb\user */
 	protected $user;
 
-	public function __construct(\phpbb\db\driver\driver_interface $db, request_interface $request, \phpbb\user $user)
+	/** @var \phpbb\auth\auth */
+	protected $auth;
+
+	public function __construct(
+		\phpbb\db\driver\driver_interface $db,
+		request_interface $request,
+		\phpbb\user $user,
+		\phpbb\auth\auth $auth
+	)
 	{
 		$this->db = $db;
 		$this->request = $request;
 		$this->user = $user;
+		$this->auth = $auth;
 	}
 
 	/**
 	 * Endpoint to fetch username suggestions for autocomplete.
 	 *
+	 * SM-08: Check u_viewprofile permissions and escape SQL wildcards (% and _).
+	 *
 	 * @return JsonResponse
 	 */
 	public function handle()
 	{
+		// SM-08: Check permissions to prevent user enumeration
+		if (!$this->auth->acl_get('u_viewprofile'))
+		{
+			return new JsonResponse([]);
+		}
+
 		$query = $this->request->variable('q', '', true);
 		$query = trim($query);
 
@@ -46,15 +63,15 @@ class autocomplete
 			return new JsonResponse([]);
 		}
 
-		// Escape for LIKE statement. Clean string for robust matching.
+		// Clean string for robust matching.
 		$search_clean = utf8_clean_string($query);
-		$search_clean = $this->db->sql_escape($search_clean);
 
+		// SM-08: Use sql_like_expression with get_any_char() to safely escape SQL wildcards (_ and %)
 		$sql = 'SELECT username
-			FROM ' . USERS_TABLE . "
-			WHERE username_clean LIKE '" . $search_clean . "%'
-				AND user_type IN (" . USER_NORMAL . ', ' . USER_FOUNDER . ")
-				AND user_id <> " . (int) max(1, $this->user->data['user_id']) . '
+			FROM ' . USERS_TABLE . '
+			WHERE username_clean ' . $this->db->sql_like_expression($search_clean . $this->db->get_any_char()) . '
+				AND user_type IN (' . USER_NORMAL . ', ' . USER_FOUNDER . ')
+				AND user_id <> ' . (int) max(1, $this->user->data['user_id']) . '
 			ORDER BY username_clean ASC';
 
 		// Limita a 5 risultati per non sovraccaricare l'interfaccia e il DB
