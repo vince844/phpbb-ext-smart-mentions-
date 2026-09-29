@@ -18,6 +18,11 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 | **SM-08** | 🟢 Low | PHP / Controller | Autocomplete endpoint hardening: check `u_viewprofile` and escape SQL wildcards | `COMPLETED` (v1.0.0-b8) |
 | **SM-09** | 🟢 Low | PHP / Parser | Prevent duplicate mention notifications inside `[quote]` blocks | `COMPLETED` (v1.0.0-b9) |
 | **SM-10** | 🟢 Low | PHP / Template | URL-encode `@username` in profile link for usernames with spaces | `COMPLETED` (v1.0.0-b10) |
+| **SM-11** | 🔴 High | CSS / Themes | Dark theme & Dark Mode support (`@media (prefers-color-scheme: dark)` & dark styles) | `TO DO` |
+| **SM-12** | 🟡 Medium | Mobile / UX | Mobile & touch interaction polish (virtual keyboard tap handling) | `TO DO` |
+| **SM-13** | 🟡 Medium | PHP / Events | Private Messages (PM) mentions handling and consistency | `TO DO` |
+| **SM-14** | 🟢 Low | ACP / Config | ACP settings page (configurable max mentions per post, permissions) | `TO DO` |
+| **SM-15** | 🟢 Low | QA / Validation | Official phpBB Extension Pre-Validator (EPV) compliance audit | `TO DO` |
 
 ---
 
@@ -118,3 +123,51 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 - **Local Test Plan:**
   1. Mention a user with spaces in their name: `@"Jane Doe"`.
   2. Click the profile link in the posted message and verify the URL is valid and navigates properly.
+
+---
+
+### SM-11: Dark Themes & Dark Mode Support
+- **Issue:** `mention.css` currently uses hardcoded light background colors and borders. On dark themes or when `prefers-color-scheme: dark` is active, the popup and mention badge clash with the dark background.
+- **Affected Files:** `styles/all/template/css/mention.css`
+- **Local Test Plan:**
+  1. Test with OS / browser set to dark mode.
+  2. Verify autocomplete dropdown renders with dark background, high-contrast readable text, and elegant borders.
+  3. Verify `.mention` link badge in posts is readable and aesthetically harmonious against dark post bodies.
+
+---
+
+### SM-12: Mobile & Touch Interaction Polish
+- **Issue:** On mobile devices (iOS Safari, Android Chrome), tapping a suggestion from the dropdown while the software keyboard is active might trigger blur or close prematurely on certain viewport resizes.
+- **Affected Files:** `styles/all/template/js/mention_autocomplete.js`
+- **Local Test Plan:**
+  1. Emulate touch device / mobile screen in browser.
+  2. Type `@ad` to open suggestions.
+  3. Tap the item and verify suggestion is inserted smoothly without losing focus or causing keyboard flicker.
+
+---
+
+### SM-13: Private Messages (PM) Mentions Handling
+- **Issue:** Mentions in Private Messages (`ucp.php?i=pm`) currently invoke autocomplete and s9e formatting, but PM notification dispatch needs explicit architectural definition (whether to send board notifications for PM mentions or restrict them to public posts).
+- **Affected Files:** `event/main_listener.php`
+- **Local Test Plan:**
+  1. Compose a PM mentioning a user.
+  2. Verify consistent behavior and absence of notification permission leaks across private folders.
+
+---
+
+### SM-14: ACP Configuration Settings Page
+- **Issue:** Settings like max mentions per post (currently hardcoded to 10) cannot be adjusted by forum administrators without editing code.
+- **Affected Files:** `acp/`, `config/services.yml`, `migrations/`
+- **Local Test Plan:**
+  1. Open ACP -> Extensions -> Smart Mentions.
+  2. Adjust max mentions setting and save.
+  3. Submit a post with exceeding mentions and verify limit enforcement.
+
+---
+
+### SM-15: Extension Pre-Validator (EPV) Compliance
+- **Issue:** Preparation for official phpBB Extension Database submission requires running phpBB EPV to guarantee zero notices, strict standard compliance, and correct packaging.
+- **Affected Files:** Entire repository
+- **Local Test Plan:**
+  1. Run `phpbb/epv` against repository.
+  2. Fix any flagged warnings, missing docblocks, or code style deviations.
