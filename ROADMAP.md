@@ -4,7 +4,10 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 
 ---
 
-## 🎯 Task Board
+## 🎯 Task Board by Milestone
+
+### 📦 Milestone 1: Beta Stabilization (v1.0.0-b1 — v1.0.0-b10) — `COMPLETED`
+Focus: Core functionality, edge cases, notification lifecycle, and security hardening.
 
 | ID | Priority | Module | Summary | Status |
 |:---|:---|:---|:---|:---|
@@ -18,11 +21,39 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 | **SM-08** | 🟢 Low | PHP / Controller | Autocomplete endpoint hardening: check `u_viewprofile` and escape SQL wildcards | `COMPLETED` (v1.0.0-b8) |
 | **SM-09** | 🟢 Low | PHP / Parser | Prevent duplicate mention notifications inside `[quote]` blocks | `COMPLETED` (v1.0.0-b9) |
 | **SM-10** | 🟢 Low | PHP / Template | URL-encode `@username` in profile link for usernames with spaces | `COMPLETED` (v1.0.0-b10) |
+
+---
+
+### 🚀 Milestone 2: Release Candidate 1 (v1.0.0-RC1) — `IN PROGRESS`
+Focus: Feature freeze, UX polish, dark themes, and mobile usability for public community testing.
+
+| ID | Priority | Module | Summary | Status |
+|:---|:---|:---|:---|:---|
 | **SM-11** | 🔴 High | CSS / Themes | Dark theme & Dark Mode support (`@media (prefers-color-scheme: dark)` & dark styles) | `TO DO` |
 | **SM-12** | 🟡 Medium | Mobile / UX | Mobile & touch interaction polish (virtual keyboard tap handling) | `TO DO` |
 | **SM-13** | 🟡 Medium | PHP / Events | Private Messages (PM) mentions handling and consistency | `TO DO` |
-| **SM-14** | 🟢 Low | ACP / Config | ACP settings page (configurable max mentions per post, permissions) | `TO DO` |
-| **SM-15** | 🟢 Low | QA / Validation | Official phpBB Extension Pre-Validator (EPV) compliance audit | `TO DO` |
+| **SM-16** | 🟢 Low | Language | Language packs audit & verification (`en` and `it`) | `TO DO` |
+
+---
+
+### 🏆 Milestone 3: Final Release (v1.0.0 Stable / phpBB CDB Submission) — `PLANNED`
+Focus: Official phpBB validation, zero warnings, clean packaging, and official submission.
+
+| ID | Priority | Module | Summary | Status |
+|:---|:---|:---|:---|:---|
+| **SM-15** | 🔴 High | QA / Validation | Official phpBB Extension Pre-Validator (EPV) compliance audit (0 errors, 0 warnings) | `TO DO` |
+| **SM-17** | 🟡 Medium | Packaging | Clean production `.zip` packaging (no `.DS_Store`, no `.git`, correct hierarchy) | `TO DO` |
+| **SM-18** | 🟢 Low | Release | phpBB Customisation Database (CDB) submission for Extension Team review | `TO DO` |
+| **SM-19** | 🟢 Low | Deploy | Deploy stable release to official forum (`kondomanager-forum`) via Coolify | `TO DO` |
+
+---
+
+### 🔮 Milestone 4: Future Feature Pack (v1.1.0) — `FUTURE`
+Focus: Advanced administrator configuration (maintaining zero-config simplicity for v1.0.0).
+
+| ID | Priority | Module | Summary | Status |
+|:---|:---|:---|:---|:---|
+| **SM-14** | 🟢 Low | ACP / Config | ACP settings page (configurable max mentions per post, custom `u_mention` permissions, badge styling) | `PLANNED (v1.1.0)` |
 
 ---
 
@@ -156,7 +187,7 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 ---
 
 ### SM-14: ACP Configuration Settings Page
-- **Issue:** Settings like max mentions per post (currently hardcoded to 10) cannot be adjusted by forum administrators without editing code.
+- **Issue:** Settings like max mentions per post (currently hardcoded to 10) cannot be adjusted by forum administrators without editing code. Planned for v1.1.0 to keep v1.0.0 zero-config.
 - **Affected Files:** `acp/`, `config/services.yml`, `migrations/`
 - **Local Test Plan:**
   1. Open ACP -> Extensions -> Smart Mentions.
@@ -171,3 +202,12 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 - **Local Test Plan:**
   1. Run `phpbb/epv` against repository.
   2. Fix any flagged warnings, missing docblocks, or code style deviations.
+
+---
+
+### SM-16: Language Pack Audit & Verification
+- **Issue:** Ensure all language files (`language/en/` and `language/it/`) contain complete, matching keys without missing translations.
+- **Affected Files:** `language/en/`, `language/it/`
+- **Local Test Plan:**
+  1. Compare translation key trees between `en` and `it`.
+  2. Verify all notification texts, tooltips, and labels render correctly in both languages.
