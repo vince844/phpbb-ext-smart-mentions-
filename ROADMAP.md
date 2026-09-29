@@ -49,11 +49,14 @@ Focus: Official phpBB validation, zero warnings, clean packaging, and official s
 ---
 
 ### 🔮 Milestone 4: Future Feature Pack (v1.1.0) — `FUTURE`
-Focus: Advanced administrator configuration (maintaining zero-config simplicity for v1.0.0).
+Focus: Advanced administrator configuration and high-value community enhancements (maintaining zero-config simplicity for v1.0.0).
 
 | ID | Priority | Module | Summary | Status |
 |:---|:---|:---|:---|:---|
 | **SM-14** | 🟢 Low | ACP / Config | ACP settings page (configurable max mentions per post, custom `u_mention` permissions, badge styling) | `PLANNED (v1.1.0)` |
+| **SM-20** | 🟡 Medium | JS / UI | User Profile Hovercard (preview avatar, rank, online status on hover over `@username`) | `PLANNED (v1.1.0)` |
+| **SM-21** | 🟡 Medium | PHP / Permissions | Group Mentions (`@moderators`, `@team` with role-based mention permissions) | `PLANNED (v1.1.0)` |
+| **SM-22** | 🟢 Low | UCP / Topic | Per-Topic Mention Muting (allow users to silence further mention notifications in specific threads) | `PLANNED (v1.1.0)` |
 
 ---
 
@@ -211,3 +214,31 @@ Focus: Advanced administrator configuration (maintaining zero-config simplicity 
 - **Local Test Plan:**
   1. Compare translation key trees between `en` and `it`.
   2. Verify all notification texts, tooltips, and labels render correctly in both languages.
+
+---
+
+### SM-20: User Profile Hovercard (v1.1.0)
+- **Feature:** Display an interactive mini-card when hovering over an `@username` mention in a post (avatar, username, group badge, online status, registration date, and direct profile / PM links).
+- **Affected Files:** `styles/all/template/js/`, `styles/all/template/css/`, `controller/`
+- **Local Test Plan:**
+  1. Hover over a rendered `@mention` link in a topic.
+  2. Verify a polished tooltip/card appears with cached user profile info without sluggish DB roundtrips.
+
+---
+
+### SM-21: Group Mentions (v1.1.0)
+- **Feature:** Allow authorized users (e.g. staff/moderators) to mention an entire usergroup (e.g. `@moderators`, `@support-team`), notifying all group members at once with permission checks to prevent abuse.
+- **Affected Files:** `event/main_listener.php`, `notification/type/mention.php`
+- **Local Test Plan:**
+  1. As administrator, post `@Moderatori`.
+  2. Verify all members of the moderators group receive a single notification.
+  3. As regular user, verify group mention syntax is either restricted or does not trigger mass spam.
+
+---
+
+### SM-22: Per-Topic Mention Muting (v1.1.0)
+- **Feature:** Allow users mentioned in very active discussions to mute/opt-out of further mention alerts for that specific topic while still following the general forum.
+- **Affected Files:** `event/main_listener.php`, `notification/type/mention.php`, `migrations/`
+- **Local Test Plan:**
+  1. In a topic where a user was mentioned, click "Mute mentions for this topic".
+  2. Subsequent posts mentioning the user in that topic do not generate notifications.

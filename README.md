@@ -31,6 +31,25 @@ Engineered from the ground up to solve common forum edge-cases: moderation queue
 
 ---
 
+## 🥊 Feature Comparison: Smart Mentions vs. Simple Mentions & phpBB 4.0 Core
+
+| Feature / Architectural Aspect | phpBB 4.0 (In Development) | Simple Mentions (3.3.x) | Smart Mentions (kondomanager/mention) |
+|:---|:---|:---|:---|
+| **Syntax & Message Source** | Native `@username` (s9e) | Injects raw BBCode `[mention]user[/mention]` | **Clean `@username` (s9e)** — message source stays clean and unpolluted |
+| **Manual Typing Recognition** | Native | ❌ Often missed if dropdown not clicked | ✅ **Always parsed** (whether typed manually or selected from popup) |
+| **Quote Spam Prevention** | ⚠️ Re-evaluates tags inside quotes | ❌ Quoting re-notifies original author | ✅ **DOM XML Traversal** ignores mentions in `[quote]` blocks (SM-09) |
+| **Moderation Queue (MCP)** | TBD (under development) | ❌ Premature notifications leak unapproved posts | ✅ **Deferred notifications** until moderator approves in MCP (SM-07) |
+| **Post Deletion Lifecycle** | Partial core integration | ❌ Leaves orphaned notifications (404 on click) | ✅ **Automatic cleanup** via `core.delete_posts_before` (SM-06) |
+| **Autocomplete Security** | ⚠️ Security fix in 4.0.0-a2 | ⚠️ Vulnerable to guest enumeration | ✅ **`u_viewprofile` check** & DBAL SQL wildcard escaping (SM-08) |
+| **Accented / Unicode Names** | Partial | Requires user ID for non-standard names | ✅ **Full Unicode `\p{L}`** (`@Nicolò`, `@René`, etc.) (SM-04) |
+| **Usernames with Spaces** | Partial | Requires `[mention=12]Name[/mention]` | ✅ **Quoted syntax** `@"First Last"` (SM-04, SM-10) |
+| **Profile Link Compliance** | Standard | Standard | ✅ **RFC 3986 URL-encoded** with legacy fallback (SM-10) |
+| **JavaScript Weight & Footprint** | Core bundle | Heavy external libraries (Tribute.js / jQuery) | ✅ **Zero dependencies**, pure vanilla JS (< 5 KB) |
+| **Quick Reply Integration** | Planned in new style | Fragile across custom styles | ✅ **Full Quick Reply & Full Editor** support out of the box (SM-03) |
+| **Dark Theme Adaptability** | Style-dependent | ❌ Hardcoded light colors | 🚀 **Adaptive dark mode** support (SM-11) |
+
+---
+
 ## 📋 Requirements
 
 - **phpBB**: 3.3.0 or higher (3.3.x compatible)
