@@ -62,6 +62,7 @@ class main_listener implements EventSubscriberInterface
 			'core.page_header'                        => 'page_header',
 			'core.text_formatter_s9e_configure_after' => 'configure_s9e_after',
 			'core.submit_post_end'                    => 'submit_post_end',
+			'core.delete_posts_before'                => 'delete_posts_before',
 		];
 	}
 
@@ -213,6 +214,24 @@ class main_listener implements EventSubscriberInterface
 			'kondomanager.mention.notification.type.mention',
 			$notification_data
 		);
+	}
+
+	/**
+	 * Register mention notification type for cleanup when posts are deleted.
+	 *
+	 * @param \phpbb\event\data $event The event object
+	 */
+	public function delete_posts_before($event)
+	{
+		$types = isset($event['delete_notifications_types']) && is_array($event['delete_notifications_types'])
+			? $event['delete_notifications_types']
+			: [];
+
+		if (!in_array('kondomanager.mention.notification.type.mention', $types, true))
+		{
+			$types[] = 'kondomanager.mention.notification.type.mention';
+			$event['delete_notifications_types'] = $types;
+		}
 	}
 
 	/**

@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0-b6] - 2026-09-29
+
+### Fixed
+- **Clean up orphaned mention notifications on post deletion (Task SM-06)**:
+  - Subscribed `kondomanager.mention.listener` to phpBB core event `core.delete_posts_before`.
+  - Implemented `delete_posts_before()` to append `kondomanager.mention.notification.type.mention` to `delete_notifications_types`.
+  - Ensures phpBB automatically deletes all mention notifications from `phpbb_notifications` when a post, multiple posts, or an entire topic is deleted (by moderator, author, MCP queue disapproval, or topic deletion).
+  - Eliminates 404 / post not found errors caused by orphaned mention notifications in the user bell dropdown.
+
+---
+
 ## [1.0.0-b5] - 2026-09-26
 
 ### Added / Fixed
