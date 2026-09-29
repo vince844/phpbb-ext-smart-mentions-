@@ -156,7 +156,7 @@ class main_listener implements EventSubscriberInterface
 			'post_id'       => (int) $data['post_id'],
 			'topic_id'      => (int) $data['topic_id'],
 			'forum_id'      => (int) $data['forum_id'],
-			'poster_id'     => (int) $data['poster_id'],
+			'poster_id'     => (int) (isset($data['poster_id']) ? $data['poster_id'] : (isset($event['poster_id']) ? $event['poster_id'] : 0)),
 			'post_subject'  => $post_subject,
 			'topic_title'   => $topic_title,
 			'post_username' => $post_username,
@@ -341,6 +341,9 @@ class main_listener implements EventSubscriberInterface
 	/**
 	 * Safely extract mentioned usernames from the s9e XML text using DOMDocument.
 	 *
+	 * SM-09: Ignores mentions located inside [quote] blocks so that quoting an earlier
+	 * post containing a mention does not trigger duplicate notifications.
+	 *
 	 * @param string $xml_text The s9e-formatted post text (XML)
 	 * @return array Unique list of mentioned usernames
 	 */
@@ -365,10 +368,26 @@ class main_listener implements EventSubscriberInterface
 		$mentions = $dom->getElementsByTagName('MENTION');
 		foreach ($mentions as $mention)
 		{
-			$username = $mention->getAttribute('username');
-			if ($username !== '')
+			// SM-09: Check if this mention is contained inside a quote block
+			$node = $mention->parentNode;
+			$is_in_quote = false;
+			while ($node && $node instanceof \DOMElement)
 			{
-				$usernames[] = $username;
+				if (strcasecmp($node->tagName, 'QUOTE') === 0)
+				{
+					$is_in_quote = true;
+					break;
+				}
+				$node = $node->parentNode;
+			}
+
+			if (!$is_in_quote)
+			{
+				$username = $mention->getAttribute('username');
+				if ($username !== '')
+				{
+					$usernames[] = $username;
+				}
 			}
 		}
 

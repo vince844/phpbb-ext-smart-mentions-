@@ -16,7 +16,7 @@ This document tracks known issues, planned improvements, edge cases, priorities,
 | **SM-06** | 🟡 Medium | PHP / Notifications | Clean up orphaned notifications upon post deletion (`core.delete_posts_before`) | `COMPLETED` (v1.0.0-b6) |
 | **SM-07** | 🟢 Low | PHP / Permissions | Unapproved posts in moderation queue: do not trigger notifications until approved | `COMPLETED` (v1.0.0-b7) |
 | **SM-08** | 🟢 Low | PHP / Controller | Autocomplete endpoint hardening: check `u_viewprofile` and escape SQL wildcards | `COMPLETED` (v1.0.0-b8) |
-| **SM-09** | 🟢 Low | PHP / Parser | Prevent duplicate mention notifications inside `[quote]` blocks | `TO DO` |
+| **SM-09** | 🟢 Low | PHP / Parser | Prevent duplicate mention notifications inside `[quote]` blocks | `COMPLETED` (v1.0.0-b9) |
 | **SM-10** | 🟢 Low | PHP / Template | URL-encode `@username` in profile link for usernames with spaces | `TO DO` |
 
 ---

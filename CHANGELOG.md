@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0-b9] - 2026-09-29
+
+### Fixed
+- **Prevent duplicate mention notifications inside quote blocks (Task SM-09)**:
+  - Updated `extract_mentioned_usernames()` in `event/main_listener.php` to traverse ancestor DOM nodes for each `<MENTION>` element.
+  - Automatically ignores mentions nested within `[quote]` blocks (e.g. `<QUOTE>` XML elements), preventing duplicate notifications when users quote previous posts containing mentions.
+  - Users explicitly mentioned outside of the quote block in the same message continue to receive their notifications as expected.
+  - Added safe fallback for `poster_id` extraction during post submission events.
+
+---
+
 ## [1.0.0-b8] - 2026-09-29
 
 ### Security / Hardening
